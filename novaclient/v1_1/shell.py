@@ -523,6 +523,88 @@ def do_network_show(cs, args):
     utils.print_dict(network._info)
 
 
+def _filter_network_create_options(args):
+    valid_args = ['label', 'cidr', 'vlan', 'vpn_start', 'cidr_v6', 'gateway',
+                  'gateway_v6', 'bridge', 'multi_host', 'dns1', 'dns2', 'uuid',
+                  'fixed_cidr', 'project_id', 'priority']
+    kwargs = {}
+    for k, v in args.__dict__.items():
+        if k in valid_args and v is not None:
+            kwargs[k] = v
+
+    return kwargs
+
+
+@utils.arg('label',
+     metavar='<network_label>',
+     help="Label for network")
+@utils.arg('--fixed-range-v4',
+     dest='cidr',
+     metavar='<x.x.x.x/yy>',
+     help="IPv4 subnet (ex: 10.0.0.0/8)")
+@utils.arg('--fixed-range-v6',
+     dest="cidr_v6",
+     help='IPv6 subnet (ex: fe80::/64')
+@utils.arg('--vlan',
+     dest='vlan',
+     metavar='<vlan id>',
+     help="vlan id")
+@utils.arg('--vpn',
+     dest='vpn_start',
+     metavar='<vpn start>',
+     help="vpn start")
+@utils.arg('--gateway',
+     dest="gateway",
+     help='gateway')
+@utils.arg('--gateway-v6',
+     dest="gateway_v6",
+     help='ipv6 gateway')
+@utils.arg('--bridge',
+     dest="bridge",
+     metavar='<bridge>',
+     help='VIFs on this network are connected to this bridge')
+@utils.arg('--bridge-interface',
+     dest="bridge_interface",
+     metavar='<bridge interface>',
+     help='the bridge is connected to this interface')
+@utils.arg('--multi-host',
+     dest="multi_host",
+     metavar="<'T'|'F'>",
+     help='Multi host')
+@utils.arg('--dns1',
+     dest="dns1",
+     metavar="<DNS Address>", help='First DNS')
+@utils.arg('--dns2',
+     dest="dns2",
+     metavar="<DNS Address>",
+     help='Second DNS')
+@utils.arg('--uuid',
+     dest="uuid",
+     metavar="<network uuid>",
+     help='Network UUID')
+@utils.arg('--fixed-cidr',
+     dest="fixed_cidr",
+     metavar='<x.x.x.x/yy>',
+     help='IPv4 subnet for fixed IPS (ex: 10.20.0.0/16)')
+@utils.arg('--project-id',
+     dest="project_id",
+     metavar="<project id>",
+     help='Project id')
+@utils.arg('--priority',
+     dest="priority",
+     metavar="<number>",
+     help='Network interface priority')
+def do_network_create(cs, args):
+    """Create a network."""
+
+    if not (args.cidr or args.cidr_v6):
+        raise exceptions.CommandError(
+            "Must specify eith fixed_range_v4 or fixed_range_v6")
+    kwargs = _filter_network_create_options(args)
+
+    cs.networks.create(**kwargs)
+
+
 def do_image_list(cs, _args):
     """Print a list of available images to boot from."""
     image_list = cs.images.list()

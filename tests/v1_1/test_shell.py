@@ -652,6 +652,25 @@ class ShellTest(utils.TestCase):
                                       'vpn_port': '1234'}}
         self.assert_called('PUT', '/os-cloudpipe/configure-project', body)
 
+    def test_network_create_v4(self):
+        self.run_command('network-create --fixed-range-v4 10.0.1.0/24 \
+                          new_network')
+        body = {'cidr': '10.0.1.0/24', 'label': 'new_network'}
+        self.assert_called('POST', '/os-networks', body)
+
+    def test_network_create_v4(self):
+        self.run_command('network-create --fixed-range-v4 10.0.1.0/24 \
+                         --dns1 10.0.1.254 new_network')
+        body = {'network': {'cidr': '10.0.1.0/24', 'label': 'new_network',
+                            'dns1': '10.0.1.254'}}
+        self.assert_called('POST', '/os-networks', body)
+
+    def test_network_create_v6(self):
+        self.run_command('network-create --fixed-range-v6 2001::/64 \
+                          new_network')
+        body = {'network': {'cidr_v6': '2001::/64', 'label': 'new_network'}}
+        self.assert_called('POST', '/os-networks', body)
+
     def test_backup(self):
         self.run_command('backup sample-server back1 daily 1')
         self.assert_called('POST', '/servers/1234/action',
